@@ -156,6 +156,8 @@ export function ClustersPage() {
                   <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/members`); }}>Members</Button>
                   <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/metrics`); }}>Metrics</Button>
                   <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/maps`); }}>Maps</Button>
+                  <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/queues`); }}>Queues</Button>
+                  <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/topics`); }}>Topics</Button>
                   <Button size="small" onClick={(e) => { e.stopPropagation(); nav(`/clusters/${c.id}/sql`); }}>SQL</Button>
                   {hasAnyRole('SUPER_ADMIN') && (
                     <Box onClick={(e) => e.stopPropagation()}>

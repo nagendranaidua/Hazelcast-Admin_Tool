@@ -335,18 +335,18 @@ public class HazelcastBridge4x implements HazelcastBridge {
     @Override
     public String topicSubscribe(String name, Consumer<MapEntryView> sink) {
         ITopic<Object> t = hz.getTopic(name);
-        String regId = t.addMessageListener(message -> {
+        UUID regId = t.addMessageListener(message -> {
             Object val = message.getMessageObject();
             MapEntryView view = renderEntry(null, val);
             sink.accept(view);
         });
-        return regId;
+        return regId.toString();
     }
 
     @Override
     public void topicUnsubscribe(String name, String subscriptionId) {
         ITopic<Object> t = hz.getTopic(name);
-        t.removeMessageListener(subscriptionId);
+        t.removeMessageListener(UUID.fromString(subscriptionId));
     }
 
     // ---- Phase 3 -------------------------------------------------------------

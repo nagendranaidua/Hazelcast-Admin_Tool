@@ -61,6 +61,8 @@ export function ClusterOverviewPage() {
         <Box sx={{ flexGrow: 1 }} />
         <Button size="small" variant="outlined" onClick={() => nav(`/clusters/${id}/members`)}>Members</Button>
         <Button size="small" variant="outlined" onClick={() => nav(`/clusters/${id}/maps`)}>Maps</Button>
+        <Button size="small" variant="outlined" onClick={() => nav(`/clusters/${id}/queues`)}>Queues</Button>
+        <Button size="small" variant="outlined" onClick={() => nav(`/clusters/${id}/topics`)}>Topics</Button>
       </Stack>
 
       {!o.connected && (
