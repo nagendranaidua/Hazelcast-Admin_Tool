@@ -13,11 +13,11 @@ import {
   Checkbox,
   Container,
 } from '@mui/material';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
+import HazelcastLogo from '../assets/HazelcastLogo';
 import { useAuth } from '../auth/AuthContext';
 import { useThemeMode } from '../ThemeModeProvider';
 
-export function LoginPage() {
+export default function LoginPage() {
   const { login } = useAuth();
   const { mode } = useThemeMode();
   const navigate = useNavigate();
@@ -33,7 +33,6 @@ export function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const me = await login(username, password);
       const destination = me.mustChangePassword ? '/change-password' : (location.state?.from?.pathname ?? '/');
@@ -53,8 +52,8 @@ export function LoginPage() {
         alignItems: 'center',
         justifyContent: 'center',
         background: mode === 'dark'
-          ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #312E81 100%)'
-          : 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #E9D5FF 100%)',
+          ? 'linear-gradient(135deg, #23235B 0%, #7C3AED 100%)'
+          : 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #F97316 100%)',
         p: 2,
       }}
     >
@@ -69,7 +68,7 @@ export function LoginPage() {
               : '1px solid rgba(124, 58, 237, 0.1)',
           }}
         >
-          {/* Header with gradient */}
+          {/* Header with logo and gradient */}
           <Box
             sx={{
               background: 'linear-gradient(135deg, #7C3AED 0%, #F97316 100%)',
@@ -80,18 +79,8 @@ export function LoginPage() {
               gap: 2,
             }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 50,
-                height: 50,
-                borderRadius: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              <LockOpenIcon sx={{ fontSize: 32, color: '#FFFFFF' }} />
+            <Box sx={{ mr: 2 }}>
+              <HazelcastLogo width={50} height={50} />
             </Box>
             <Box>
               <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
@@ -173,3 +162,4 @@ export function LoginPage() {
     </Box>
   );
 }
+
