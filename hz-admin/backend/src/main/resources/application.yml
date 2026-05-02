@@ -1,0 +1,111 @@
+spring:
+  application:
+    name: hz-admin
+  profiles:
+    active: ${HZ_ADMIN_PROFILE:dev}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres?currentSchema=hzadmin}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    hibernate:
+      ddl-auto: validate         # Flyway owns the schema; JPA must agree
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    session:
+      cookie:
+        http-only: true
+        secure: ${COOKIE_SECURE:false}      # set true behind HTTPS
+        same-site: lax
+      timeout: 60m
+  forward-headers-strategy: framework         # behind Apache reverse proxy
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /api-docs
+
+# ===== Application config =====
+hz-admin:
+  security:
+    # Master encryption key for SSH creds, HZ keystores, etc. MUST be set via env in prod.
+    kek: ${ADMIN_KEK:dev-only-32byte-key-please-rotate!!}
+    jwt:
+      secret: ${JWT_SECRET:dev-only-jwt-secret-rotate-me-please-32bytes-minimum}
+      issuer: hz-admin
+      access-token-ttl-min: 15
+      refresh-token-ttl-days: 7
+    auth-providers:
+      db: true                                # always on; default
+      ldap: false                             # Phase 5
+      oidc: false                             # Phase 5
+  bridge:
+    # Directory containing hz-bridge-Nx-*.jar files. Each is loaded into its own
+    # URLClassLoader so 4.x and 5.x clients can coexist without classpath collision.
+    # Override with HZ_ADMIN_BRIDGE_DIR env var or -Dhz-admin.bridge.dir=...
+    dir: ${HZ_ADMIN_BRIDGE_DIR:./bridges}
+    idle-eviction-min: 10
+    # Per-socket TCP connect timeout (one address attempt). Independent of the retry budget below.
+    connect-timeout-ms: 8000
+    invocation-timeout-ms: 30000
+    # ----- Bounded cluster-connect retry (replaces Hazelcast's default of "retry forever") -----
+    # Total wait budget when opening a bridge = connect-max-attempts × connect-backoff-ms.
+    # On exhaustion, BridgeRouter.bridgeFor throws CLUSTER_UNREACHABLE (HTTP 503) with the
+    # Hazelcast leaf cause, surfaced verbatim to the UI.
+    connect-max-attempts: 3
+    connect-backoff-ms:   2000
+  metrics:
+    # Per-cluster sampler period & in-memory ring-buffer retention for time-series charts
+    sample-interval-sec: 15
+    retain-samples: 240        # 240 * 15s = 60 min
+    # Per-map sampling (Stage 3 dashboard). Independent scheduler so it can be tuned
+    # without affecting cluster-level samples. Disable by setting map-sampling-enabled: false
+    # if you have thousands of maps and don't want the extra bridge calls.
+    map-sampling-enabled: true
+    map-sample-interval-sec: 30
+    map-retain-samples: 120    # 120 * 30s = 60 min
+    map-sample-cap: 50         # max maps sampled per cluster per tick
+  query:
+    default-page-size: 200
+    max-page-size: 10000
+    default-timeout-ms: 30000
+    rate-limit-per-minute:
+      DEVELOPER: 30
+      CLUSTER_OPERATOR: 60
+      SUPER_ADMIN: 120
+  cors:
+    # Vite dev server + Apache prod hostname; tighten in prod
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:8080}

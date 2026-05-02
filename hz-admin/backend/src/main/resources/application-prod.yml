@@ -1,0 +1,11 @@
+logging:
+  level:
+    root: INFO
+    com.genius.hz: INFO
+  file:
+    name: /var/log/hz-admin/hz-admin.log
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true

@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: INFO
+    com.genius.hz: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.security: INFO

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>hz-admin-parent</artifactId>
+    <groupId>com.genius.hz</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>hz-bridge-4x</artifactId>
+  <name>Hazelcast Admin :: Bridge (Hazelcast 4.x)</name>
+  <description>SPI implementation backed by hazelcast-client 4.2.8 (final 4.x patch).
+        Built as a self-contained shaded jar; loaded at runtime in its own URLClassLoader so
+        its com.hazelcast.* classes don't collide with the 5.x bridge's same-named-but-different classes.</description>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>shade-jar-with-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <minimizeJar>false</minimizeJar>
+              <artifactSet>
+                <excludes>
+                  <exclude>com.genius.hz:hz-bridge-spi</exclude>
+                  <exclude>com.genius.hz:shared-api</exclude>
+                  <exclude>org.slf4j:slf4j-api</exclude>
+                  <exclude>org.projectlombok:lombok</exclude>
+                </excludes>
+              </artifactSet>
+              <transformers>
+                <transformer />
+                <transformer>
+                  <manifestEntries>
+                    <Bridge-Hz-Major>4</Bridge-Hz-Major>
+                    <Bridge-Hz-Version>${hazelcast4.version}</Bridge-Hz-Version>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>com.genius.hz</groupId>
+      <artifactId>hz-bridge-spi</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast</artifactId>
+      <version>4.2.8</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.13.5</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>

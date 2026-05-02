@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.genius.hz</groupId>
+        <artifactId>hz-admin-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hz-bridge-5x</artifactId>
+    <name>Hazelcast Admin :: Bridge (Hazelcast 5.x)</name>
+    <description>
+        SPI implementation backed by hazelcast-client 5.2.5. Connects to clusters running 5.1.x or 5.2.x.
+        Built as a self-contained shaded jar so it can live in an isolated URLClassLoader at runtime,
+        side-by-side with the 4.x bridge (which ships incompatible com.hazelcast.* classes).
+    </description>
+
+    <dependencies>
+        <!-- SPI: provided-scope so its classes are NOT shaded into our jar.
+             At runtime they're loaded from the parent (backend) classloader, which guarantees
+             type identity between bridge and backend. -->
+        <dependency>
+            <groupId>com.genius.hz</groupId>
+            <artifactId>hz-bridge-spi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Hazelcast 5.2.5 (NOT inherited from parent dep-mgmt; pinned inline so the 4.x
+             bridge can declare a different version without collision). -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>${hazelcast5.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- slf4j-api: provided so it isn't shaded. We share the backend's logger binding. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>shade-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <minimizeJar>false</minimizeJar>
+                            <artifactSet>
+                                <excludes>
+                                    <!-- SPI types must be loaded from parent CL -->
+                                    <exclude>com.genius.hz:hz-bridge-spi</exclude>
+                                    <exclude>com.genius.hz:shared-api</exclude>
+                                    <!-- shared logging -->
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <!-- never bundle build-time tools -->
+                                    <exclude>org.projectlombok:lombok</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Bridge-Hz-Major>5</Bridge-Hz-Major>
+                                        <Bridge-Hz-Version>${hazelcast5.version}</Bridge-Hz-Version>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

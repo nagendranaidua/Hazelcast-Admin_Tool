@@ -1,0 +1,36 @@
+# Local dev only: starts Postgres for the admin app + an OPTIONAL Hazelcast 5.2 member
+# you can register in the UI to exercise the full stack end-to-end.
+#
+#   docker compose up -d           -> postgres + hazelcast
+#   docker compose up -d postgres  -> postgres only
+#
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hzadmin-postgres
+    environment:
+      POSTGRES_DB:       hzadmin
+      POSTGRES_USER:     hzadmin
+      POSTGRES_PASSWORD: hzadmin
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hzadmin"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Optional: a real HZ 5.2 cluster for testing. Register at:
+  #   name=local, env=DEV, hzClusterName=dev, majorVersion=5.2, members=127.0.0.1:5701
+  hazelcast:
+    image: hazelcast/hazelcast:5.2.5
+    container_name: hzadmin-hz-5x
+    environment:
+      HZ_CLUSTERNAME: dev
+      HZ_NETWORK_PUBLICADDRESS: 127.0.0.1:5701
+    ports: ["5701:5701"]
+
+volumes:
+  pgdata:
