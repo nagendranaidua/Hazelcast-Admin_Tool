@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+// Re-export from AppShell.jsx
+export { AppShell } from './AppShell.jsx';
 import {
   AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
   Box, Tooltip, Avatar, Divider, Chip, Stack, Menu, MenuItem, Badge, InputAdornment, TextField,

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext ts,tsx"
+    "lint": "eslint src --ext js,jsx"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -25,10 +25,7 @@
     "recharts": "^2.12.6"
   },
   "devDependencies": {
-    "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.4.5",
     "vite": "^5.2.10"
   }
 }
